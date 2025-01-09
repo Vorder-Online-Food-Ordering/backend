@@ -1,8 +1,10 @@
 package com.example.backend.config;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
@@ -13,6 +15,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+@Slf4j
 @Service
 public class JwtProvider {
     private SecretKey key = Keys.hmacShaKeyFor(JwtConstant.SECRET_KEY.getBytes());
@@ -30,16 +33,36 @@ public class JwtProvider {
         return jwt;
     }
 
-    public String getEmailFromJwtToken(String jwt){
-        jwt = jwt.substring(7);
+    public String getEmailFromJwtToken(String jwt) {
+        try {
+            if (jwt.startsWith("Bearer ")) {
+                jwt = jwt.substring(7); // Remove 'Bearer ' prefix
+            }
 
-        Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(jwt).getBody();
+            // Parse the JWT and get claims
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(key) // Make sure the signing key is consistent
+                    .build()
+                    .parseClaimsJws(jwt)
+                    .getBody();
 
-        String email = String.valueOf(claims.get("email"));
+            // Log claims for debugging
+            log.info("JWT Claims: {}", claims);
 
-        return email;
+            // Extract the email claim
+            String email = claims.get("email", String.class);
 
+            // Return the extracted email
+            return email;
+        } catch (JwtException e) {
+            log.error("Error parsing JWT: {}", e.getMessage());
+            throw new IllegalArgumentException("Invalid or expired token");
+        } catch (Exception e) {
+            log.error("Unexpected error: {}", e.getMessage());
+            throw new RuntimeException("Error reading JWT", e);
+        }
     }
+
 
     private String populateAuthorities(Collection <? extends GrantedAuthority> authorities) {
         Set<String> auths = new HashSet<>();

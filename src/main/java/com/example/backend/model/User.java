@@ -24,6 +24,7 @@ public class User {
     private String email;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY) //ko hien thi pass khi get profile
     private String password;
+    private boolean isEnabled = false;
     private USER_ROLE role = USER_ROLE.ROLE_CUSTOMER;
 
     @JsonIgnore

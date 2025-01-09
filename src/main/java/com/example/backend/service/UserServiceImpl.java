@@ -6,6 +6,8 @@ import com.example.backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Calendar;
+
 @Service
 public class UserServiceImpl implements UserService{
     private UserRepository userRepository;
@@ -35,5 +37,23 @@ public class UserServiceImpl implements UserService{
             throw new Exception("User not found");
         }
         return user;
+    }
+
+    @Override
+    public String validateToken(String verificationToken) throws Exception {
+
+        User user = findUserByJwtToken(verificationToken);
+
+//        Calendar calendar = Calendar.getInstance();
+//
+//        if(token.getExpirationTime().before(calendar.getTime())){
+////            verificationTokenRepository.delete(token);
+//            return "Token expired";
+//        }
+
+        user.setEnabled(true);
+        userRepository.save(user);
+
+        return "valid";
     }
 }
