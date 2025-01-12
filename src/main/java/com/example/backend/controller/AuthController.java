@@ -135,6 +135,12 @@ public class AuthController {
 
         Authentication authentication = authenticate(username, password);
 
+        User user = userRepository.findByEmail(username);
+
+        if (!user.isEnabled()) {
+            return new ResponseEntity<>(new AuthResponse(null, "Account is not enabled", null), HttpStatus.FORBIDDEN);
+        }
+
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         String role = authorities.isEmpty() ? null : authorities.iterator().next().getAuthority();
 

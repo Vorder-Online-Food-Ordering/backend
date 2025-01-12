@@ -5,6 +5,7 @@ import com.example.backend.model.IngredientsItem;
 import com.example.backend.request.IngredientCategoryRequest;
 import com.example.backend.request.IngredientRequest;
 import com.example.backend.service.IngredientsService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +16,11 @@ import java.util.List;
 @RequestMapping("/api/admin/ingredients")
 public class IngredientController {
     private IngredientsService ingredientsService;
+
+    @Autowired
+    public IngredientController(IngredientsService ingredientsService) {
+        this.ingredientsService = ingredientsService;
+    }
 
     @PostMapping("/category")
     public ResponseEntity<IngredientCategory> createIngredientCategory(@RequestBody IngredientCategoryRequest req) throws Exception {
